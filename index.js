@@ -1,6 +1,7 @@
 // Installed basic packages
 // Added author name into single article
 const express = require('express')
+const con = require('./utils/db')
 const app = express()
 
 const path = require('path')
@@ -21,30 +22,15 @@ const bodyParser = require('body-parser')
 
 app.use(bodyParser.urlencoded({extended: true}))
 
-var con = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'qwerty',
-    database: 'joga_mysql',
-})
-
 con.connect((err) => {
     if (err) throw err;
     console.log('Connected to joga_mysql database successfully!')
 })
 
-app.get('/', (req,res) =>{
-    let query = 'SELECT * FROM article';
-    let articles = []
-    con.query(query, (err,result)=>{
-        if(err) throw err;
-        articles = result
-        console.log(articles)
-        res.render('index', {
-            articles:articles
-        })
-    })
-})
+const articleRoutes = require('./routes/article');
+
+app.use('/', articleRoutes)
+app.use('/article', articleRoutes)
 
 app.get('/article/:slug', (req,res) =>{
     let query = `SELECT *, article.name as article_name, author.name as author_name FROM article JOIN author on article.author_id = author.id WHERE slug="${req.params.slug}"`
@@ -81,5 +67,5 @@ app.get('/author/:author_ID', (req,res) =>{
 })
 
 app.listen(3000, () => {
-    console.log('App is started at http://localhost:3000') // HTTPS dosen't work, cause this protocol isn't secure :P
+    console.log('App is started at http://localhost:3000 (https won\' work!)') // HTTPS dosen't work, cause this protocol isn't secure :P
 })
