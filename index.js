@@ -39,14 +39,15 @@ app.get('/', (req,res) =>{
     con.query(query, (err,result)=>{
         if(err) throw err;
         articles = result
+        console.log(articles)
         res.render('index', {
-            articles: articles
+            articles:articles
         })
     })
 })
 
 app.get('/article/:slug', (req,res) =>{
-    let query = `SELECT * FROM article WHERE slug="${req.params.slug}"`
+    let query = `SELECT *, article.name as article_name, author.name as author_name FROM article JOIN author on article.author_id = author.id WHERE slug="${req.params.slug}"`
     let article
     con.query(query, (err, result) =>{
         if(err) throw err;
@@ -58,6 +59,27 @@ app.get('/article/:slug', (req,res) =>{
     })
 })
 
+app.get('/author/:author_ID', (req,res) =>{
+    let query = `SELECT * FROM author WHERE id="${req.params.author_ID}}"`
+    let author = []
+    con.query(query, (err, result) =>{
+        if(err) throw err;
+        author = result
+        console.log(author)
+        query = `SELECT * FROM article WHERE author_id="${req.params.author_ID}}"`
+        let articles = []
+        con.query(query, (err, result) => {
+            if (err) throw err;
+            articles = result
+            console.log(articles)
+            res.render('author', {
+                author: author,
+                articles: articles
+            })
+        })
+    })
+})
+
 app.listen(3000, () => {
-    console.log('App is started at https://localhost:3000')
+    console.log('App is started at http://localhost:3000') // HTTPS dosen't work, cause this protocol isn't secure :P
 })
